@@ -54,10 +54,11 @@ const productsSlice = createSlice({
           : true;
 
         // Category filter
-        const matchesCategory = state.filters.category
-          ? Array.isArray(product.tags) &&
-            product.tags.includes(state.filters.category)
-          : true;
+        const matchesCategory =
+          state.filters.category && state.filters.category !== "all"
+            ? Array.isArray(product.tags) &&
+              product.tags.includes(state.filters.category)
+            : true;
 
         // Rating filter
         const matchesRating = state.filters.rating
