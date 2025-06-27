@@ -81,6 +81,15 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// Add this block to read from .env
+def envFile = rootProject.file('.env')
+if (envFile.exists()) {
+    envFile.eachLine { line ->
+        def (key, value) = line.split('=', 2)
+        project.ext.set(key, value.trim().replaceAll('"', ''))
+    }
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -94,6 +103,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+        // Add this line to make the API key available in the manifest
+        manifestPlaceholders = [EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: project.findProperty('EXPO_PUBLIC_GOOGLE_MAPS_API_KEY') ?: '']
     }
     signingConfigs {
         debug {

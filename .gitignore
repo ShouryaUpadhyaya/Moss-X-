@@ -37,3 +37,6 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Google Maps API Key
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY

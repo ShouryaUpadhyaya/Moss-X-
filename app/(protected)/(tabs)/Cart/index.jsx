@@ -1,21 +1,105 @@
 // import { RAYZORPAY_KEY } from "@env";
-import React from "react";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  TouchableHighlight,
-  View,
-} from "react-native";
-import { Card, IconButton, Text } from "react-native-paper";
+import * as Location from "expo-location";
+import React, { useEffect, useState } from "react";
+import { Alert, View } from "react-native";
+import { Portal } from "react-native-paper";
 import RazorpayCheckout from "react-native-razorpay";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromCart, updateQuantity } from "../../store/slices/cartSlice";
 import { useTheme } from "../../theme/ThemeContext";
+import CartFooter from "./components/CartFooter";
+import CartItemList from "./components/CartItemList";
+import DeliveryModal from "./components/DeliveryModal";
+import EmptyCart from "./components/EmptyCart";
+import useCartModal from "./hooks/useCartModal";
+import styles from "./styles";
+
+const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY; // or your key directly
+
 export default function Cart() {
   const { theme } = useTheme();
   const dispatch = useDispatch();
   const { items, total } = useSelector((state) => state.cart);
+  const { isModalVisible, openModal, closeModal } = useCartModal();
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [landmark, setLandmark] = useState("");
+  const [deliveryNotes, setDeliveryNotes] = useState("");
+  const [location, setLocation] = useState(null);
+  const [region, setRegion] = useState(null);
+  const [locationLoading, setLocationLoading] = useState(true);
+  const [destination, setDestination] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission denied",
+          "Permission to access location was denied"
+        );
+        setLocationLoading(false);
+        // Set default region to India if permission denied
+        setRegion({
+          latitude: 20.5937,
+          longitude: 78.9629,
+          latitudeDelta: 20,
+          longitudeDelta: 20,
+        });
+        return;
+      }
+
+      try {
+        let currentLocation = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+          maximumAge: 10000,
+        });
+        console.log("Fetched location: ", currentLocation.coords);
+        const initialRegion = {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        };
+        setLocation(currentLocation.coords);
+        setRegion(initialRegion);
+      } catch (error) {
+        console.error("Error getting location:", error);
+        // Set default region to India if error
+        setRegion({
+          latitude: 20.5937,
+          longitude: 78.9629,
+          latitudeDelta: 20,
+          longitudeDelta: 20,
+        });
+      } finally {
+        setLocationLoading(false);
+      }
+    })();
+  }, []);
+
+  const handleMapPress = async (e) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    console.log("latitude: ", latitude, "longitude: ", longitude);
+
+    setLocation({ latitude, longitude }); // Update marker position
+
+    try {
+      let geocode = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+      if (geocode.length > 0) {
+        const { name, street, city, postalCode, region, country } = geocode[0];
+        const formattedAddress = `${name || ""} ${street || ""}, ${
+          city || ""
+        }, ${region || ""}, ${postalCode || ""}, ${country || ""}`.trim();
+        setAddress(formattedAddress);
+      }
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+    }
+  };
 
   const handleQuantityChange = (productId, newQuantity) => {
     dispatch(updateQuantity({ productId, quantity: newQuantity }));
@@ -26,6 +110,16 @@ export default function Cart() {
   };
 
   const handlePayment = async () => {
+    if (!address.trim() || !phoneNumber.trim()) {
+      Alert.alert(
+        "Missing Information",
+        "Please provide your address and phone number."
+      );
+      return;
+    }
+
+    closeModal();
+
     try {
       // Check if RazorpayCheckout is available
       if (!RazorpayCheckout) {
@@ -37,19 +131,23 @@ export default function Cart() {
         return;
       }
 
-      console.log(process.env.RAYZORPAY_KEY);
+      console.log(process.env);
 
       const options = {
         description: "Payment for Moss X products",
         image: "https://i.imgur.com/3g7nmJC.jpg",
         currency: "INR",
-        key: "rzp_test_sn1CP0a3ZzrvdR",
+        key: process.env.EXPO_PUBLIC_RAZORPAY_KEY,
         amount: total * 100, // Amount in paise
         name: "Moss X",
         prefill: {
           email: "customer@example.com",
-          contact: "9999999999",
+          contact: phoneNumber,
           name: "Customer Name",
+        },
+        notes: {
+          address: `${address}, ${landmark}`,
+          delivery_notes: deliveryNotes,
         },
         theme: { color: "#53a20e" },
         modal: {
@@ -103,182 +201,20 @@ export default function Cart() {
     }
   };
 
+  console.log("GOOGLE_MAPS_APIKEY:", GOOGLE_MAPS_APIKEY);
+  console.log("items:", items);
+
   if (items.length === 0) {
-    return (
-      <View
-        style={[styles.emptyContainer, { backgroundColor: theme.background }]}
-      >
-        <Text style={[styles.emptyText, { color: theme.text }]}>
-          Your cart is empty
-        </Text>
-      </View>
-    );
+    return <EmptyCart />;
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView style={styles.scrollView}>
-        {items.map((item) => (
-          <Card
-            key={item.id}
-            style={[styles.card, { backgroundColor: theme.surface }]}
-          >
-            <Card.Content style={styles.cardContent}>
-              <Card.Cover
-                source={{ uri: item.imagesrc }}
-                style={styles.image}
-              />
-              <View style={styles.itemDetails}>
-                <Text
-                  style={[styles.title, { color: theme.text }]}
-                  numberOfLines={2}
-                >
-                  {item.title}
-                </Text>
-                <Text style={[styles.price, { color: theme.primary }]}>
-                  ₹{item.price}
-                </Text>
-                <View style={styles.quantityContainer}>
-                  <IconButton
-                    icon="minus"
-                    size={20}
-                    onPress={() =>
-                      handleQuantityChange(item.id, item.quantity - 1)
-                    }
-                    disabled={item.quantity <= 1}
-                    iconColor={theme.primary}
-                  />
-                  <Text style={[styles.quantity, { color: theme.text }]}>
-                    {item.quantity}
-                  </Text>
-                  <IconButton
-                    icon="plus"
-                    size={20}
-                    onPress={() =>
-                      handleQuantityChange(item.id, item.quantity + 1)
-                    }
-                    iconColor={theme.primary}
-                  />
-                </View>
-              </View>
-              <IconButton
-                icon="delete"
-                size={24}
-                iconColor={theme.error}
-                onPress={() => handleRemoveItem(item.id)}
-              />
-            </Card.Content>
-          </Card>
-        ))}
-      </ScrollView>
-
-      <View style={[styles.footer, { backgroundColor: theme.surface }]}>
-        <View style={styles.totalContainer}>
-          <Text style={[styles.totalLabel, { color: theme.text }]}>Total:</Text>
-          <Text style={[styles.totalAmount, { color: theme.primary }]}>
-            ₹{total}
-          </Text>
-        </View>
-        <TouchableHighlight
-          onPress={handlePayment}
-          style={[styles.checkoutButton, { backgroundColor: theme.primary }]}
-          underlayColor={theme.primary + "80"}
-        >
-          <View style={styles.checkoutButtonContent}>
-            <Text style={[styles.checkoutButtonText, { color: "#FFFFFF" }]}>
-              Proceed to Checkout
-            </Text>
-          </View>
-        </TouchableHighlight>
+    <Portal.Host>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <CartItemList items={items} />
+        <CartFooter onCheckoutPress={openModal} />
+        <DeliveryModal visible={isModalVisible} onDismiss={closeModal} />
       </View>
-    </View>
+    </Portal.Host>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyText: {
-    fontSize: 18,
-  },
-  card: {
-    margin: 8,
-    elevation: 2,
-  },
-  cardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  image: {
-    width: 80,
-    height: 80,
-    marginRight: 12,
-  },
-  itemDetails: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  quantityContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  quantity: {
-    fontSize: 16,
-    marginHorizontal: 8,
-    minWidth: 30,
-    textAlign: "center",
-  },
-  footer: {
-    padding: 16,
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  totalContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  totalLabel: {
-    fontSize: 18,
-    fontWeight: "500",
-  },
-  totalAmount: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  checkoutButton: {
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  checkoutButtonContent: {
-    paddingVertical: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkoutButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});
