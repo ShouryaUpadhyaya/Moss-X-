@@ -1,30 +1,32 @@
 export const lightTheme = {
-  primary: "#4CAF50", // Vibrant Green
-  secondary: "#81C784", // Soft Green
-  background: "#FAFAFA", // Light Neutral Background
-  surface: "#FFFFFF", // White Surface
-  text: "#2E7D32", // Deep Green Text
-  textSecondary: "#558B2F", // Olive Green
-  border: "#C8E6C9", // Light Green Border
-  error: "#E53935", // Fresh Red
-  success: "#43A047", // Success Green
-  info: "#1E88E5", // Blue Info Color
-  warning: "#FB8C00", // Warning Orange
+  primary: "#4CAF50",           // ✅ Keep: Vibrant Green (CTA, accents)
+  secondary: "#A5D6A7",         // 🟢 Update: Softer, cleaner green for background elements
+  background: "#FAFAFA",        // ✅ Keep: Neutral background
+  surface: "#FFFFFF",           // ✅ Keep: Cards, containers
+  text: "#1A1A1A",              // 🟢 Updated: True black for readability (main text, titles)
+  textSecondary: "#666666",     // 🟢 Updated: Professional light gray for subtext
+  border: "#E0E0E0",            // 🟢 Updated: Light neutral for universal border
+  error: "#E53935",             // ✅ Keep
+  success: "#43A047",           // ✅ Keep
+  info: "#1E88E5",              // ✅ Keep
+  warning: "#FB8C00",           // ✅ Keep
 };
 
+
 export const darkTheme = {
-  primary: "#66BB6A", // Soft Green
-  secondary: "#388E3C", // Deep Green
-  background: "#121212", // True Black
-  surface: "#1E1E1E", // Darker Surface
-  text: "#E8F5E9", // Very Light Green Text
-  textSecondary: "#A5D6A7", // Light Olive Green
-  border: "#4CAF50", // Mid Green Border
-  error: "#EF5350", // Red for Error
-  success: "#81C784", // Soft Green Success
-  info: "#90CAF9", // Soft Blue
-  warning: "#FFB74D", // Light Orange
+  primary: "#66BB6A",           // ✅ Keep: For buttons/icons
+  secondary: "#A5D6A7",         // 🟢 Updated: Softer complementary green
+  background: "#121212",        // ✅ Keep: True black base
+  surface: "#1E1E1E",           // ✅ Keep: Cards, panels
+  text: "#F1F1F1",              // 🟢 Updated: Light gray-white for readability
+  textSecondary: "#BBBBBB",     // 🟢 Updated: Subtle light gray for secondary text
+  border: "#2E7D32",            // 🟢 Updated: Use deep green borders only for highlights
+  error: "#EF5350",             // ✅ Keep
+  success: "#81C784",           // ✅ Keep
+  info: "#90CAF9",              // ✅ Keep
+  warning: "#FFB74D",           // ✅ Keep
 };
+
 
 const theme = {
   light: lightTheme,

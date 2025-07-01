@@ -1,7 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import { Card, Chip, IconButton, Text } from "react-native-paper";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../theme/ThemeContext";
 
 export default function ProductCard({ item, style }) {
@@ -16,118 +15,95 @@ export default function ProductCard({ item, style }) {
   };
 
   return (
-    <Pressable onPress={handlePress}>
-      <Card style={[styles.card, { backgroundColor: theme.surface }, style]}>
-        <Card.Cover source={{ uri: item.imagesrc }} style={styles.image} />
-        <Card.Content style={styles.content}>
-          <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
-            {item.title}
+    <Pressable onPress={handlePress} style={[styles.container, style]}>
+      {/* Image Container */}
+      <View style={[styles.imageContainer, { backgroundColor: theme.surface }]}>
+        <Image
+          source={{ uri: item.imagesrc }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </View>
+      
+      {/* Text Content */}
+      <View style={styles.textContainer}>
+        <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
+          {item.title}
+        </Text>
+        
+        <Text style={[styles.price, { color: theme.primary }]}>
+          ₹{item.price}
+        </Text>
+        
+        <View style={styles.ratingContainer}>
+          <Ionicons name="star" size={12} color={theme.primary} />
+          <Text style={[styles.rating, { color: theme.textSecondary }]}>
+            {item.rating}
           </Text>
-          <Text
-            style={[styles.description, { color: theme.textSecondary }]}
-            numberOfLines={1}
-          >
-            {item.discription}
-          </Text>
+        </View>
 
-          <View style={styles.priceContainer}>
-            <Text style={[styles.price, { color: theme.primary }]}>
-              ₹{item.price}
-            </Text>
-            <View style={styles.ratingContainer}>
-              <IconButton icon="star" size={14} iconColor={theme.primary} />
-              <Text style={[styles.rating, { color: theme.textSecondary }]}>
-                {item.rating}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.statsContainer}>
-            <Text style={[styles.stats, { color: theme.textSecondary }]}>
-              Sold: {item.quantity_sold}
-            </Text>
-            <Text style={[styles.stats, { color: theme.textSecondary }]}>
-              Stock: {item.stock}
+        {/* Single Tag */}
+        {item.tags && item.tags.length > 0 && (
+          <View style={[styles.tag, { backgroundColor: theme.primary + '20' }]}>
+            <Text style={[styles.tagText, { color: theme.primary }]}>
+              {item.tags[0]}
             </Text>
           </View>
-
-          <View style={styles.tagsContainer}>
-            {item.tags.slice(0, 2).map((tag, index) => (
-              <Chip
-                key={index}
-                style={[styles.tag, { backgroundColor: theme.primary + "20" }]}
-                textStyle={{ color: theme.primary, fontSize: 10 }}
-              >
-                {tag}
-              </Chip>
-            ))}
-          </View>
-        </Card.Content>
-      </Card>
+        )}
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    margin: 4,
-    elevation: 3,
-    borderRadius: 12,
+  container: {
+    margin: 8,
+  },
+  imageContainer: {
+    borderRadius: 20,
     overflow: "hidden",
-    maxHeight: 300,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
   image: {
-    height: 120,
+    width: "100%",
+    height: 140,
   },
-  content: {
-    padding: 8,
+  textContainer: {
+    paddingTop: 12,
+    paddingHorizontal: 4,
   },
   title: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginBottom: 2,
-  },
-  description: {
-    fontSize: 12,
-    marginBottom: 4,
-    lineHeight: 16,
-  },
-  priceContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginVertical: 4,
-  },
-  price: {
     fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 4,
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 4,
   },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 6,
   },
   rating: {
     fontSize: 12,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 4,
-  },
-  stats: {
-    fontSize: 12,
-  },
-  tagsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 4,
-    marginTop: 4,
+    marginLeft: 4,
   },
   tag: {
-    flex: 1,
-    flexDirection: "row",
-    maxWidth: 90,
-    // marginRight: 4,
-    // height: 20,
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginTop: 2,
+  },
+  tagText: {
+    fontSize: 10,
+    fontWeight: "500",
   },
 });

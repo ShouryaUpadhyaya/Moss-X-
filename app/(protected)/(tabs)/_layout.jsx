@@ -1,8 +1,8 @@
-import React from "react";
 import { Icon } from "react-native-paper";
 import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
 import { useTheme } from "../theme/ThemeContext";
 import Cart from "./Cart";
+import Explore from "./Explore";
 import Listing from "./Listing";
 import UserProfile from "./UserProfile";
 
@@ -42,6 +42,21 @@ export default function TabLayout() {
             <Icon
               color={color}
               source="home"
+              size={focused ? 32 : 24}
+              theme={theme}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Explore/index"
+        component={Explore}
+        options={{
+          tabBarLabel: "Explore",
+          tabBarIcon: ({ color, focused }) => (
+            <Icon
+              color={color}
+              source="compass"
               size={focused ? 32 : 24}
               theme={theme}
             />
