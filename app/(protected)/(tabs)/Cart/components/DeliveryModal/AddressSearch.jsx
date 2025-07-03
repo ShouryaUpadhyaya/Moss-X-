@@ -38,7 +38,7 @@ export default function AddressSearch({
         container: {
           flex: 0,
           zIndex: 2,
-          position: "absolute",
+          // position: "absolute",
           width: "100%",
           padding: 10,
         },

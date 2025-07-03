@@ -2,7 +2,7 @@ import * as Location from "expo-location";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromCart } from "../../../store/slices/cartSlice";
+import { removeFromCart } from "../../../../store/slices/cartSlice";
 import { useTheme } from "../../../theme/ThemeContext";
 
 export default function useDeliveryModal() {

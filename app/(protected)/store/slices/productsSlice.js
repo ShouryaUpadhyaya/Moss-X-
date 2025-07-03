@@ -1,12 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 import mossxJson from "../../../../mossx_plant_dataset.json";
 
+// Add console logs to inspect mossxJson right after import
+console.log("mossxJson loaded in productsSlice:", mossxJson);
+console.log("mossxJson.SeasonalCollection:", mossxJson.SeasonalCollection);
+console.log("mossxJson.product_bundle:", mossxJson.product_bundle);
+
 const ITEMS_PER_PAGE = 5;
 
 const initialState = {
   allProducts: mossxJson.product,
   filteredProducts: mossxJson.product,
   displayedProducts: mossxJson.product.slice(0, ITEMS_PER_PAGE),
+  seasonalCollections: mossxJson.SeasonalCollection,
+  productBundles: mossxJson.product_bundle,
   currentPage: 1,
   hasMore: true,
   filters: {

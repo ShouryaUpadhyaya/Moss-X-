@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Chip, IconButton, Text } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../store/slices/cartSlice";
+import { addToCart } from "../../store/slices/cartSlice";
 import {
   addToWishlist,
   removeFromWishlist,

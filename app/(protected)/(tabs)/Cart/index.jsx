@@ -5,7 +5,10 @@ import { Alert, View } from "react-native";
 import { Portal } from "react-native-paper";
 import RazorpayCheckout from "react-native-razorpay";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromCart, updateQuantity } from "../../store/slices/cartSlice";
+import {
+  removeFromCart,
+  updateQuantity,
+} from "../../../store/slices/cartSlice";
 import { useTheme } from "../../theme/ThemeContext";
 import CartFooter from "./components/CartFooter";
 import CartItemList from "./components/CartItemList";

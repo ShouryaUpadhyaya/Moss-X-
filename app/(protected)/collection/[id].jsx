@@ -2,10 +2,9 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useCallback, useEffect } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-paper";
-import { useDispatch } from "react-redux";
-import mossxJson from "../../../mossx_plant_dataset.json";
+import { useDispatch, useSelector } from "react-redux";
+import { addBundleToCart } from "../../store/slices/cartSlice";
 import CollectionProducts from "../components/CollectionProducts";
-import { addBundleToCart } from "../store/slices/cartSlice";
 import { useTheme } from "../theme/ThemeContext";
 
 export default function CollectionPage() {
@@ -15,16 +14,21 @@ export default function CollectionPage() {
   const navigation = useNavigation();
   const router = useRouter();
 
+  // Retrieve data from Redux store
+  const { allProducts, seasonalCollections, productBundles } = useSelector(
+    (state) => state.products
+  );
+
   // Find the collection or bundle based on type and id
   const collection =
     type === "seasonal"
-      ? mossxJson.SeasonalCollection.find((c) => c.id === id)
-      : mossxJson.product_bundle.find((b) => b.id === id);
+      ? seasonalCollections.find((c) => c.id === id)
+      : productBundles.find((b) => b.id === id);
 
   // Map plant IDs to actual plant objects
   const products = collection
     ? (collection.plants || [])
-        .map((plantId) => mossxJson.product.find((p) => p.id === plantId))
+        .map((plantId) => allProducts.find((p) => p.id === plantId))
         .filter(Boolean)
     : [];
 

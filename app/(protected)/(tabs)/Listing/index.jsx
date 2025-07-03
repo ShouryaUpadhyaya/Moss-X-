@@ -1,12 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Dimensions, FlatList, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import mossxJson from "../../../../mossx_plant_dataset.json";
+import { loadMore, setFilters } from "../../../store/slices/productsSlice";
 import CollectionCard from "../../components/CollectionCard";
 import FilterBar from "../../components/FilterBar";
 import ProductCard from "../../components/ProductCard";
-import { loadMore, setFilters } from "../../store/slices/productsSlice";
 import { useTheme } from "../../theme/ThemeContext";
 
 const { width } = Dimensions.get("window");
@@ -15,9 +14,18 @@ const CARD_WIDTH = width * 0.45;
 export default function Listing() {
   const { theme } = useTheme();
   const dispatch = useDispatch();
-  const { displayedProducts, hasMore, filters } = useSelector(
-    (state) => state.products
-  );
+  const {
+    displayedProducts,
+    hasMore,
+    filters,
+    seasonalCollections,
+    productBundles,
+  } = useSelector((state) => state.products);
+
+  useEffect(() => {
+    console.log("Seasonal Collections in Listing:", seasonalCollections);
+    console.log("Product Bundles in Listing:", productBundles);
+  }, [seasonalCollections, productBundles]);
 
   const handleLoadMore = useCallback(async () => {
     if (!hasMore) return;
@@ -58,7 +66,7 @@ export default function Listing() {
         </Text>
         <FlatList
           horizontal
-          data={mossxJson?.SeasonalCollection || []}
+          data={seasonalCollections || []}
           renderItem={({ item }) => (
             <CollectionCard item={item} type="seasonal" />
           )}
@@ -77,7 +85,7 @@ export default function Listing() {
         </Text>
         <FlatList
           horizontal
-          data={mossxJson?.product_bundle || []}
+          data={productBundles || []}
           renderItem={({ item }) => (
             <CollectionCard item={item} type="bundle" />
           )}

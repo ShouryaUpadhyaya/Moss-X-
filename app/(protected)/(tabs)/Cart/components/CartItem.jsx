@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import {
   removeFromCart,
   updateQuantity,
-} from "../../../store/slices/cartSlice";
+} from "../../../../store/slices/cartSlice";
 import { useTheme } from "../../../theme/ThemeContext";
 import styles from "../styles";
 
